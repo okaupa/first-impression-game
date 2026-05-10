@@ -517,15 +517,189 @@
     margin: 0 6px;
     text-shadow: 0 1px 2px rgba(0,0,0,0.2);
   }
+
+  /* ===== 年齢確認モーダル ===== */
+  .age-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .age-modal-card {
+    background: white;
+    border-radius: 24px;
+    padding: 32px 24px;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .age-modal-icon {
+    font-size: 50px;
+    margin-bottom: 12px;
+  }
+  .age-modal-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #831843;
+    margin-bottom: 12px;
+  }
+  .age-modal-text {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  .age-modal-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .age-modal-btn {
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+    color: white;
+  }
+  .age-yes {
+    background: linear-gradient(45deg, #ff6b9d, #c084fc);
+  }
+  .age-no {
+    background: #94a3b8;
+  }
+  .age-denied {
+    text-align: center;
+    padding: 30px 20px;
+  }
+  .age-denied-icon {
+    font-size: 60px;
+    margin-bottom: 12px;
+  }
+
+  /* ===== 注意喚起バナー ===== */
+  .warning-banner {
+    background: linear-gradient(90deg, #fef3c7, #fed7aa, #fecaca);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin: 12px 0 16px;
+    border-left: 5px solid #dc2626;
+    font-size: 12px;
+    color: #7c2d12;
+    line-height: 1.5;
+  }
+  .warning-title {
+    font-weight: bold;
+    color: #991b1b;
+    margin-bottom: 4px;
+    font-size: 13px;
+  }
+
+  /* ===== センシティブトグル ===== */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f9fafb;
+    padding: 12px 14px;
+    border-radius: 14px;
+    margin: 12px 0;
+    border: 2px solid #e5e7eb;
+  }
+  .toggle-info { flex: 1; }
+  .toggle-label {
+    font-weight: bold;
+    color: #555;
+    font-size: 14px;
+  }
+  .toggle-desc {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .toggle-switch {
+    position: relative;
+    width: 50px;
+    height: 28px;
+    cursor: pointer;
+  }
+  .toggle-switch input { display: none; }
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: #d1d5db;
+    border-radius: 28px;
+    transition: 0.3s;
+  }
+  .toggle-slider::before {
+    content: "";
+    position: absolute;
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .toggle-switch input:checked + .toggle-slider {
+    background: linear-gradient(45deg, #ff6b9d, #c084fc);
+  }
+  .toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(22px);
+  }
+
+  .punishment-note {
+    text-align: center;
+    font-size: 11px;
+    color: #6b7280;
+    background: #f9fafb;
+    padding: 8px 12px;
+    border-radius: 10px;
+    margin: 8px 0 12px;
+    line-height: 1.5;
+  }
 </style>
 </head>
 <body>
+
+<!-- 🔞 年齢確認モーダル -->
+<div id="age-modal" class="age-modal">
+  <div class="age-modal-card" id="age-modal-card">
+    <div class="age-modal-icon">🍻</div>
+    <div class="age-modal-title">年齢確認</div>
+    <div class="age-modal-text">
+      本サービスは飲み会を楽しむためのゲームです。<br>
+      <strong>あなたは20歳以上ですか？</strong>
+    </div>
+    <div class="age-modal-buttons">
+      <button class="age-modal-btn age-no" onclick="confirmAge(false)">いいえ</button>
+      <button class="age-modal-btn age-yes" onclick="confirmAge(true)">はい (20歳以上)</button>
+    </div>
+  </div>
+</div>
+
 <div class="app">
 
   <!-- スタート画面: プレイヤー登録 + お題数選択 -->
   <div id="screen-setup" class="card">
     <h1>🍻 第一印象ゲーム 🍻</h1>
     <p class="subtitle">2位で罰ゲーム & 最後にマッチング💕</p>
+
+    <div class="warning-banner">
+      <div class="warning-title">⚠️ 楽しく安全に</div>
+      適量飲酒・飲酒の強要禁止・自己責任でお楽しみください。一気飲みは絶対NG🙅
+    </div>
 
     <h2>👥 メンバーを追加</h2>
     <div class="player-input">
@@ -541,6 +715,17 @@
       <button class="count-option active" data-count="5">5</button>
       <button class="count-option" data-count="7">7</button>
       <button class="count-option" data-count="10">10</button>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">💔 きわどいお題を含める</div>
+        <div class="toggle-desc">浮気・恋愛・黒歴史系など（OFFがおすすめ）</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="sensitiveToggle">
+        <span class="toggle-slider"></span>
+      </label>
     </div>
 
     <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>ゲームスタート 🎮</button>
@@ -603,6 +788,10 @@
       <div class="punishment-emoji">🍺😱</div>
     </div>
 
+    <div class="punishment-note">
+      ※ 罰ゲームは飲酒に限らずOK！ジュース🥤・モノマネ🎭・お題🎤など、参加者で決めてね
+    </div>
+
     <!-- 🟡 広告枠 (忍者AdMaxなどのコードを貼る) -->
     <div class="ad-slot" id="ad-slot-result">
       <!-- ここに広告コードを貼り付け -->
@@ -652,7 +841,7 @@
 
     <!-- 🔴 投げ銭ボタン (Buy Me a Coffeeなど) -->
     <div class="support-section">
-      <a class="support-btn" href="https://www.buymeacoffee.com/okaupa" target="_blank" rel="noopener">
+      <a class="support-btn" href="https://www.buymeacoffee.com/YOUR_USERNAME" target="_blank" rel="noopener">
         ☕ 楽しかったらサポート
       </a>
     </div>
@@ -667,15 +856,13 @@
 </div>
 
 <script>
-// ===== 定番お題リスト =====
-const QUESTIONS = [
+// ===== 定番お題リスト (通常) =====
+const QUESTIONS_NORMAL = [
   "一番モテそうな人は？",
   "一番お酒が強そうな人は？",
   "一番貯金してそうな人は？",
-  "一番浮気しそうな人は？",
   "一番遅刻しそうな人は？",
   "一番リーダーシップがありそうな人は？",
-  "一番秘密を抱えてそうな人は？",
   "一番運動神経が良さそうな人は？",
   "一番カラオケが上手そうな人は？",
   "一番料理が上手そうな人は？",
@@ -683,7 +870,6 @@ const QUESTIONS = [
   "一番優しそうな人は？",
   "一番天然そうな人は？",
   "一番社長になりそうな人は？",
-  "一番恋愛経験が多そうな人は？",
   "一番財布の紐が固そうな人は？",
   "一番夜更かししてそうな人は？",
   "一番ペットを溺愛してそうな人は？",
@@ -692,7 +878,6 @@ const QUESTIONS = [
   "一番朝が弱そうな人は？",
   "一番涙もろそうな人は？",
   "一番かばんの中が散らかってそうな人は？",
-  "一番ギャンブルにハマりそうな人は？",
   "一番無人島に持っていきたい人は？",
   "一番宝くじが当たりそうな人は？",
   "一番二日酔いになりそうな人は？",
@@ -702,8 +887,104 @@ const QUESTIONS = [
   "一番おごってくれそうな人は？",
   "一番ドジっ子な人は？",
   "一番怖い話が好きそうな人は？",
-  "一番おしゃれな人は？"
+  "一番おしゃれな人は？",
+  "一番旅行好きそうな人は？",
+  "一番ストレスに強そうな人は？",
+  "一番動物に好かれそうな人は？",
+  "一番子供に好かれそうな人は？",
+  "一番先生になりそうな人は？",
+  "一番アーティストになりそうな人は？",
+  "一番スポーツ選手になりそうな人は？",
+  "一番YouTuberになりそうな人は？",
+  "一番起業しそうな人は？",
+  "一番海外に住みそうな人は？",
+  "一番田舎暮らしが似合いそうな人は？",
+  "一番都会派っぽい人は？",
+  "一番ゲームが上手そうな人は？",
+  "一番映画好きそうな人は？",
+  "一番読書家っぽい人は？",
+  "一番写真撮るのが上手そうな人は？",
+  "一番手先が器用そうな人は？",
+  "一番虫が苦手そうな人は？",
+  "一番熱血そうな人は？",
+  "一番冷静沈着な人は？",
+  "一番頑固そうな人は？",
+  "一番話が長そうな人は？",
+  "一番末っ子っぽい人は？",
+  "一番一人っ子っぽい人は？",
+  "一番喫茶店巡りしてそうな人は？",
+  "一番フェスが好きそうな人は？",
+  "一番アウトドア派な人は？",
+  "一番インドア派な人は？",
+  "一番ジムに通ってそうな人は？",
+  "一番健康オタクっぽい人は？",
+  "一番カラオケで熱唱しそうな人は？",
+  "一番大物になりそうな人は？",
+  "一番細かい性格な人は？",
+  "一番大雑把な人は？",
+  "一番気が利く人は？",
+  "一番口が堅そうな人は？",
+  "一番ギャップがありそうな人は？",
+  "一番TikTokやってそうな人は？",
+  "一番運転が荒そうな人は？",
+  "一番終電を逃しそうな人は？",
+  "一番タクシー使いがちな人は？",
+  "一番断捨離してそうな人は？",
+  "一番物が捨てられなさそうな人は？",
+  "一番セールに目がない人は？",
+  "一番ブランド好きそうな人は？",
+  "一番ツッコミ役な人は？",
+  "一番ボケ担当な人は？",
+  "一番幹事を任されがちな人は？",
+  "一番無口そうな人は？",
+  "一番おしゃべりな人は？",
+  "一番感動屋な人は？",
+  "一番素直な人は？",
+  "一番嘘がつけなさそうな人は？",
+  "一番察しが良さそうな人は？",
+  "一番総理大臣になりそうな人は？",
+  "一番ノーベル賞取りそうな人は？",
+  "一番真面目そうな人は？",
+  "一番自信家な人は？",
+  "一番恥ずかしがり屋な人は？",
+  "一番グループの兄/姉的存在な人は？",
+  "一番カフェで作業してそうな人は？",
+  "一番野菜嫌いそうな人は？",
+  "一番甘党な人は？",
+  "一番辛党な人は？"
 ];
+
+// ===== きわどいお題 (トグルONで含める) =====
+const QUESTIONS_SENSITIVE = [
+  "一番浮気しそうな人は？",
+  "一番秘密を抱えてそうな人は？",
+  "一番恋愛経験が多そうな人は？",
+  "一番元カレ/元カノが多そうな人は？",
+  "一番マッチングアプリ使ってそうな人は？",
+  "一番恋愛体質な人は？",
+  "一番貢いでそうな人は？",
+  "一番ギャンブルにハマりそうな人は？",
+  "一番裏アカ持ってそうな人は？",
+  "一番黒歴史がありそうな人は？",
+  "一番ヤキモチ焼きそうな人は？",
+  "一番だまされやすそうな人は？",
+  "一番口が軽そうな人は？",
+  "一番嘘がうまそうな人は？",
+  "一番二股しそうな人は？",
+  "一番ダメ男/女に引っかかりそうな人は？",
+  "一番ホストやキャバ嬢にハマりそうな人は？",
+  "一番過去がやばそうな人は？",
+  "一番昔ヤンチャだった人は？",
+  "一番夜の街が似合いそうな人は？"
+];
+
+// 現在のお題プールを取得
+function getQuestionPool() {
+  const includeSensitive = document.getElementById('sensitiveToggle')?.checked || false;
+  return includeSensitive
+    ? [...QUESTIONS_NORMAL, ...QUESTIONS_SENSITIVE]
+    : [...QUESTIONS_NORMAL];
+}
 
 // ===== ゲーム状態 =====
 let players = [];
@@ -765,13 +1046,46 @@ document.addEventListener('DOMContentLoaded', () => {
       questionCount = parseInt(btn.dataset.count, 10);
     });
   });
+  // 年齢確認チェック
+  checkAgeConfirmation();
 });
+
+// ===== 年齢確認 =====
+function checkAgeConfirmation() {
+  let confirmed = false;
+  try { confirmed = localStorage.getItem('ageConfirmed') === 'yes'; } catch (e) {}
+  if (confirmed) {
+    document.getElementById('age-modal').style.display = 'none';
+  }
+}
+
+function confirmAge(isAdult) {
+  const modal = document.getElementById('age-modal');
+  if (isAdult) {
+    try { localStorage.setItem('ageConfirmed', 'yes'); } catch (e) {}
+    modal.style.display = 'none';
+  } else {
+    // 20歳未満の場合は使用不可メッセージ
+    document.getElementById('age-modal-card').innerHTML = `
+      <div class="age-denied">
+        <div class="age-denied-icon">🙅</div>
+        <div class="age-modal-title">ごめんなさい</div>
+        <div class="age-modal-text">
+          本サービスは飲み会向けのため、<br>
+          <strong>20歳以上の方のみ</strong> ご利用いただけます。<br><br>
+          20歳になったらまた遊びに来てね🍻
+        </div>
+      </div>
+    `;
+  }
+}
 
 // ===== ゲーム開始 =====
 function startGame() {
   if (players.length < 3) return;
-  // お題をランダム選択
-  selectedQuestions = [...QUESTIONS].sort(() => Math.random() - 0.5).slice(0, questionCount);
+  // お題をランダム選択（センシティブトグルに応じてプールを切り替え）
+  const pool = getQuestionPool();
+  selectedQuestions = [...pool].sort(() => Math.random() - 0.5).slice(0, questionCount);
   // 票データ初期化
   voteData = selectedQuestions.map(() => {
     const obj = {};
