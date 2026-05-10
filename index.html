@@ -428,6 +428,95 @@
     20% { opacity: 1; transform: translateY(-50px) scale(1); }
     100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
   }
+
+  /* ===== マネタイズ枠 ===== */
+  .ad-slot {
+    margin: 16px 0;
+    padding: 8px;
+    background: #f9fafb;
+    border-radius: 12px;
+    text-align: center;
+    min-height: 60px;
+    font-size: 11px;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ad-slot:empty::before {
+    content: "広告枠";
+    opacity: 0.5;
+  }
+
+  .affiliate-section {
+    background: linear-gradient(135deg, #fef3c7, #fde68a, #fcd34d);
+    border-radius: 18px;
+    padding: 18px 16px;
+    margin: 16px 0;
+    border: 2px dashed #f59e0b;
+  }
+  .affiliate-title {
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    color: #92400e;
+    margin-bottom: 12px;
+  }
+  .affiliate-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .affiliate-item {
+    background: white;
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+    text-decoration: none;
+    color: #92400e;
+    font-size: 13px;
+    font-weight: bold;
+    border: 2px solid #fbbf24;
+    transition: transform 0.15s;
+    display: block;
+  }
+  .affiliate-item:active { transform: scale(0.95); }
+  .affiliate-emoji {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .support-section {
+    text-align: center;
+    margin-top: 20px;
+    padding: 12px;
+  }
+  .support-btn {
+    display: inline-block;
+    background: linear-gradient(45deg, #fbbf24, #f97316);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(251,191,36,0.4);
+    transition: transform 0.15s;
+  }
+  .support-btn:active { transform: scale(0.95); }
+
+  .footer-links {
+    text-align: center;
+    margin-top: 8px;
+    font-size: 11px;
+  }
+  .footer-links a {
+    color: rgba(255,255,255,0.85);
+    text-decoration: underline;
+    margin: 0 6px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
 </style>
 </head>
 <body>
@@ -513,6 +602,12 @@
       <div class="punishment-name" id="punishmentName"></div>
       <div class="punishment-emoji">🍺😱</div>
     </div>
+
+    <!-- 🟡 広告枠 (忍者AdMaxなどのコードを貼る) -->
+    <div class="ad-slot" id="ad-slot-result">
+      <!-- ここに広告コードを貼り付け -->
+    </div>
+
     <button class="btn btn-primary" id="nextResultBtn" onclick="nextResult()">次へ ➡️</button>
   </div>
 
@@ -521,13 +616,54 @@
     <h1>💕 マッチング発表 💕</h1>
     <p class="subtitle">気になる人がお互いマッチしたら…</p>
     <div id="matchList"></div>
+
+    <!-- 🟠 アフィリエイト枠 (リンクを差し替え可能) -->
+    <div class="affiliate-section">
+      <div class="affiliate-title">🍻 次の飲み会の準備に</div>
+      <div class="affiliate-grid">
+        <a class="affiliate-item" href="https://www.amazon.co.jp/s?k=%E9%A3%B2%E3%81%BF%E4%BC%9A+%E3%82%B2%E3%83%BC%E3%83%A0" target="_blank" rel="noopener nofollow sponsored">
+          <span class="affiliate-emoji">🎲</span>
+          飲み会グッズ
+        </a>
+        <a class="affiliate-item" href="https://www.amazon.co.jp/s?k=%E3%81%8A%E3%81%A4%E3%81%BE%E3%81%BF" target="_blank" rel="noopener nofollow sponsored">
+          <span class="affiliate-emoji">🍿</span>
+          おつまみ
+        </a>
+        <a class="affiliate-item" href="https://www.amazon.co.jp/s?k=%E7%BD%B0%E3%82%B2%E3%83%BC%E3%83%A0" target="_blank" rel="noopener nofollow sponsored">
+          <span class="affiliate-emoji">🌶️</span>
+          罰ゲーム
+        </a>
+        <a class="affiliate-item" href="https://www.amazon.co.jp/s?k=%E3%83%93%E3%83%BC%E3%83%AB" target="_blank" rel="noopener nofollow sponsored">
+          <span class="affiliate-emoji">🍺</span>
+          ドリンク
+        </a>
+      </div>
+    </div>
+
+    <!-- 🟡 広告枠 -->
+    <div class="ad-slot" id="ad-slot-match">
+      <!-- ここに広告コードを貼り付け -->
+    </div>
+
     <div class="button-row">
       <button class="btn btn-secondary" onclick="resetGameKeepPlayers()">もう一回 🔁</button>
       <button class="btn btn-warning" onclick="resetAll()">最初から</button>
     </div>
+
+    <!-- 🔴 投げ銭ボタン (Buy Me a Coffeeなど) -->
+    <div class="support-section">
+      <a class="support-btn" href="https://www.buymeacoffee.com/YOUR_USERNAME" target="_blank" rel="noopener">
+        ☕ 楽しかったらサポート
+      </a>
+    </div>
   </div>
 
   <p class="footer-note">楽しい飲み会を🥂</p>
+  <div class="footer-links">
+    <a href="privacy.html">プライバシー</a>・
+    <a href="terms.html">利用規約</a>・
+    <a href="https://twitter.com/share?text=飲み会で使える第一印象ゲーム作ったよ&url=" target="_blank" rel="noopener">シェア</a>
+  </div>
 </div>
 
 <script>
