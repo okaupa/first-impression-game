@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>第一印象ゲーム 🍻</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%;
+    font-family: 'Hiragino Maru Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+    overflow-x: hidden;
+  }
+  body {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 25%, #fbc2eb 50%, #a18cd1 75%, #84fab0 100%);
+    background-size: 400% 400%;
+    animation: bgShift 12s ease infinite;
+    min-height: 100vh;
+    color: #333;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  @keyframes bgShift {
+    0%,100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .app { width: 100%; max-width: 480px; margin: 8px auto; }
+
+  .card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 24px;
+    padding: 24px 20px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    backdrop-filter: blur(10px);
+    animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 28px;
+    background: linear-gradient(45deg, #ff6b9d, #c084fc, #60a5fa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+    font-weight: 900;
+    letter-spacing: 1px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 18px;
+    color: #555;
+    margin: 18px 0 10px;
+    text-align: center;
+  }
+
+  .player-input {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  input[type="text"] {
+    flex: 1;
+    padding: 14px 16px;
+    border: 3px solid #fbc2eb;
+    border-radius: 16px;
+    font-size: 16px;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  input[type="text"]:focus { border-color: #ff6b9d; }
+
+  .btn {
+    padding: 14px 24px;
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+    color: white;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary {
+    background: linear-gradient(45deg, #ff6b9d, #c084fc);
+    box-shadow: 0 6px 16px rgba(255,107,157,0.4);
+  }
+  .btn-secondary {
+    background: linear-gradient(45deg, #60a5fa, #34d399);
+    box-shadow: 0 6px 16px rgba(96,165,250,0.4);
+  }
+  .btn-warning {
+    background: linear-gradient(45deg, #fbbf24, #f97316);
+    box-shadow: 0 6px 16px rgba(251,191,36,0.4);
+  }
+  .btn-love {
+    background: linear-gradient(45deg, #f43f5e, #ec4899);
+    box-shadow: 0 6px 16px rgba(244,63,94,0.4);
+  }
+  .btn-small { width: auto; padding: 10px 16px; font-size: 14px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .player-list { list-style: none; margin: 16px 0; }
+  .player-list li {
+    background: linear-gradient(90deg, #fef3c7, #fce7f3);
+    padding: 12px 16px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .remove-btn {
+    background: #ef4444; color: white; border: none;
+    border-radius: 50%; width: 28px; height: 28px;
+    cursor: pointer; font-size: 16px; line-height: 1;
+  }
+  .remove-btn:active { transform: scale(0.9); }
+
+  .count-info { text-align: center; color: #666; font-size: 14px; margin: 12px 0; }
+
+  /* お題数セレクター */
+  .count-selector {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 10px 0;
+  }
+  .count-option {
+    background: white;
+    border: 3px solid #fbc2eb;
+    border-radius: 14px;
+    padding: 14px 4px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .count-option.active {
+    background: linear-gradient(45deg, #ff6b9d, #c084fc);
+    color: white;
+    border-color: #ff6b9d;
+    transform: scale(1.05);
+  }
+  .count-option:active { transform: scale(0.95); }
+
+  .question-card {
+    background: linear-gradient(135deg, #ffe4e6, #fce7f3, #ede9fe);
+    border-radius: 20px;
+    padding: 28px 20px;
+    text-align: center;
+    margin-bottom: 16px;
+    border: 3px dashed #f9a8d4;
+  }
+  .question-label {
+    font-size: 13px;
+    color: #c026d3;
+    font-weight: bold;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+  }
+  .question-text {
+    font-size: 22px;
+    font-weight: bold;
+    color: #831843;
+    line-height: 1.5;
+  }
+
+  .voter-info {
+    text-align: center;
+    background: linear-gradient(45deg, #fef9c3, #fed7aa);
+    padding: 14px;
+    border-radius: 16px;
+    margin-bottom: 14px;
+  }
+  .voter-name {
+    font-size: 22px;
+    font-weight: bold;
+    color: #c2410c;
+    margin: 4px 0;
+  }
+  .voter-progress { font-size: 12px; color: #92400e; }
+
+  .progress-bar-wrap {
+    background: #f3f4f6;
+    border-radius: 10px;
+    height: 10px;
+    overflow: hidden;
+    margin: 10px 0 16px;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ff6b9d, #c084fc);
+    transition: width 0.3s ease;
+    border-radius: 10px;
+  }
+
+  .vote-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .vote-btn {
+    background: white;
+    border: 3px solid #c084fc;
+    border-radius: 16px;
+    padding: 18px 8px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #6b21a8;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    word-break: break-all;
+  }
+  .vote-btn:active {
+    transform: scale(0.95);
+    background: linear-gradient(45deg, #c084fc, #f9a8d4);
+    color: white;
+  }
+  .vote-btn.self {
+    border-color: #fbbf24;
+    background: linear-gradient(45deg, #fef3c7, #fde68a);
+  }
+  .vote-btn.crush {
+    border-color: #f43f5e;
+    color: #be123c;
+    background: linear-gradient(45deg, #fff1f2, #ffe4e6);
+  }
+  .vote-btn.crush:active {
+    background: linear-gradient(45deg, #f43f5e, #ec4899);
+    color: white;
+  }
+  .vote-btn.skip {
+    border-color: #94a3b8;
+    color: #475569;
+    grid-column: span 2;
+  }
+
+  .pass-screen {
+    text-align: center;
+    padding: 30px 20px;
+  }
+  .pass-icon {
+    font-size: 70px;
+    margin-bottom: 16px;
+    animation: bounce 1s ease infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  .pass-text {
+    font-size: 22px;
+    font-weight: bold;
+    color: #6b21a8;
+    margin-bottom: 8px;
+  }
+  .pass-subtext { color: #888; margin-bottom: 24px; }
+
+  .results { margin: 12px 0; }
+  .result-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    border-radius: 14px;
+    background: #f9fafb;
+    font-weight: bold;
+    animation: slideIn 0.4s ease;
+  }
+  .result-row.first {
+    background: linear-gradient(90deg, #fef3c7, #fde68a);
+    border: 2px solid #f59e0b;
+  }
+  .result-row.second {
+    background: linear-gradient(90deg, #fecaca, #fca5a5);
+    border: 3px solid #dc2626;
+    transform: scale(1.04);
+    box-shadow: 0 8px 20px rgba(220,38,38,0.3);
+  }
+  .rank { font-size: 20px; width: 36px; text-align: center; }
+  .result-name { flex: 1; margin-left: 8px; font-size: 16px; }
+  .vote-count {
+    background: white; padding: 4px 12px; border-radius: 12px;
+    font-size: 14px; color: #666;
+  }
+
+  .punishment-banner {
+    background: linear-gradient(45deg, #dc2626, #f97316, #fbbf24);
+    background-size: 200% 200%;
+    animation: bgShift 2s ease infinite;
+    color: white;
+    padding: 18px;
+    border-radius: 18px;
+    text-align: center;
+    margin: 16px 0;
+    box-shadow: 0 8px 24px rgba(220,38,38,0.4);
+  }
+  .punishment-label { font-size: 13px; letter-spacing: 4px; margin-bottom: 6px; }
+  .punishment-name {
+    font-size: 28px; font-weight: 900;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  }
+  .punishment-emoji { font-size: 36px; margin-top: 6px; }
+
+  .button-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .hidden { display: none !important; }
+
+  .footer-note {
+    text-align: center;
+    color: rgba(255,255,255,0.85);
+    font-size: 12px;
+    margin-top: 16px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+
+  .tie-note {
+    text-align: center;
+    font-size: 13px;
+    color: #6b21a8;
+    background: #ede9fe;
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+
+  /* マッチ画面 */
+  .match-banner {
+    background: linear-gradient(45deg, #f43f5e, #ec4899, #c084fc);
+    background-size: 200% 200%;
+    animation: bgShift 2.5s ease infinite;
+    color: white;
+    padding: 22px 16px;
+    border-radius: 20px;
+    text-align: center;
+    margin: 14px 0;
+    box-shadow: 0 12px 30px rgba(244,63,94,0.4);
+  }
+  .match-pair {
+    font-size: 24px;
+    font-weight: 900;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.25);
+    margin: 6px 0;
+    line-height: 1.3;
+  }
+  .match-action {
+    font-size: 14px;
+    margin-top: 10px;
+    background: rgba(255,255,255,0.25);
+    padding: 8px;
+    border-radius: 12px;
+  }
+  .no-match {
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    color: #6b7280;
+    padding: 20px;
+    border-radius: 16px;
+    text-align: center;
+    font-weight: bold;
+    margin: 12px 0;
+  }
+
+  .heart-icon {
+    display: inline-block;
+    animation: heartBeat 1s ease-in-out infinite;
+  }
+  @keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+  }
+
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    animation: confettiFall 3s linear forwards;
+    z-index: 9999;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  .floating-heart {
+    position: fixed;
+    font-size: 30px;
+    pointer-events: none;
+    animation: floatUp 3s ease-out forwards;
+    z-index: 9999;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(0.5); opacity: 0; }
+    20% { opacity: 1; transform: translateY(-50px) scale(1); }
+    100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- スタート画面: プレイヤー登録 + お題数選択 -->
+  <div id="screen-setup" class="card">
+    <h1>🍻 第一印象ゲーム 🍻</h1>
+    <p class="subtitle">2位で罰ゲーム & 最後にマッチング💕</p>
+
+    <h2>👥 メンバーを追加</h2>
+    <div class="player-input">
+      <input type="text" id="playerNameInput" placeholder="名前を入力" maxlength="10">
+      <button class="btn btn-secondary btn-small" onclick="addPlayer()" style="width:auto;margin-top:0;">追加</button>
+    </div>
+    <p class="count-info" id="countInfo">3〜10人で遊べます</p>
+    <ul class="player-list" id="playerList"></ul>
+
+    <h2>📋 お題の数</h2>
+    <div class="count-selector" id="countSelector">
+      <button class="count-option" data-count="3">3</button>
+      <button class="count-option active" data-count="5">5</button>
+      <button class="count-option" data-count="7">7</button>
+      <button class="count-option" data-count="10">10</button>
+    </div>
+
+    <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>ゲームスタート 🎮</button>
+  </div>
+
+  <!-- パス画面 -->
+  <div id="screen-pass" class="card hidden">
+    <div class="pass-screen">
+      <div class="pass-icon">📱➡️</div>
+      <div class="pass-text"><span id="nextVoterName"></span> さんに<br>スマホを渡してね</div>
+      <div class="pass-subtext">他の人は画面を見ないこと！</div>
+      <p class="count-info" id="passProgress"></p>
+      <button class="btn btn-primary" onclick="showVoteScreen()">準備OK 👍</button>
+    </div>
+  </div>
+
+  <!-- 投票画面 (お題ごと) -->
+  <div id="screen-vote" class="card hidden">
+    <div class="voter-info">
+      <div class="voter-progress"><span id="voterProgress"></span></div>
+      <div class="voter-name">🗳️ <span id="currentVoterName"></span> さん</div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <p class="count-info" id="questionProgress"></p>
+    <div class="question-card" style="padding:20px;">
+      <div class="question-label">★ THEME ★</div>
+      <div class="question-text" id="voteQuestionText"></div>
+    </div>
+    <div class="vote-buttons" id="voteButtons"></div>
+  </div>
+
+  <!-- 気になる人投票画面 -->
+  <div id="screen-crush" class="card hidden">
+    <div class="voter-info" style="background:linear-gradient(45deg, #fff1f2, #ffe4e6);">
+      <div class="voter-progress"><span id="crushVoterProgress"></span></div>
+      <div class="voter-name" style="color:#be123c;">💕 <span id="crushVoterName"></span> さん</div>
+    </div>
+    <div class="question-card" style="background:linear-gradient(135deg, #fff1f2, #ffe4e6, #fce7f3);border-color:#f9a8d4;">
+      <div class="question-label" style="color:#e11d48;">★ FINAL ★</div>
+      <div class="question-text" style="color:#9f1239;">💕 メンバーの中で<br>気になる人は？</div>
+    </div>
+    <p class="count-info">こっそり選んでね（相手にバレる時は両思いの時だけ💘）</p>
+    <div class="vote-buttons" id="crushButtons"></div>
+  </div>
+
+  <!-- 結果画面 (お題ごと) -->
+  <div id="screen-result" class="card hidden">
+    <h1 id="resultHeader">📊 結果発表！</h1>
+    <p class="count-info" id="resultProgress"></p>
+    <div class="question-card" style="padding:16px;">
+      <div class="question-text" style="font-size:18px;" id="resultQuestionText"></div>
+    </div>
+    <div id="tieNoteBox"></div>
+    <div class="results" id="resultList"></div>
+    <div class="punishment-banner" id="punishmentBanner">
+      <div class="punishment-label">★ 罰ゲーム決定 ★</div>
+      <div class="punishment-name" id="punishmentName"></div>
+      <div class="punishment-emoji">🍺😱</div>
+    </div>
+    <button class="btn btn-primary" id="nextResultBtn" onclick="nextResult()">次へ ➡️</button>
+  </div>
+
+  <!-- マッチング結果画面 -->
+  <div id="screen-match" class="card hidden">
+    <h1>💕 マッチング発表 💕</h1>
+    <p class="subtitle">気になる人がお互いマッチしたら…</p>
+    <div id="matchList"></div>
+    <div class="button-row">
+      <button class="btn btn-secondary" onclick="resetGameKeepPlayers()">もう一回 🔁</button>
+      <button class="btn btn-warning" onclick="resetAll()">最初から</button>
+    </div>
+  </div>
+
+  <p class="footer-note">楽しい飲み会を🥂</p>
+</div>
+
+<script>
+// ===== 定番お題リスト =====
+const QUESTIONS = [
+  "一番モテそうな人は？",
+  "一番お酒が強そうな人は？",
+  "一番貯金してそうな人は？",
+  "一番浮気しそうな人は？",
+  "一番遅刻しそうな人は？",
+  "一番リーダーシップがありそうな人は？",
+  "一番秘密を抱えてそうな人は？",
+  "一番運動神経が良さそうな人は？",
+  "一番カラオケが上手そうな人は？",
+  "一番料理が上手そうな人は？",
+  "一番怒ると怖そうな人は？",
+  "一番優しそうな人は？",
+  "一番天然そうな人は？",
+  "一番社長になりそうな人は？",
+  "一番恋愛経験が多そうな人は？",
+  "一番財布の紐が固そうな人は？",
+  "一番夜更かししてそうな人は？",
+  "一番ペットを溺愛してそうな人は？",
+  "一番LINEの返信が遅そうな人は？",
+  "一番方向音痴そうな人は？",
+  "一番朝が弱そうな人は？",
+  "一番涙もろそうな人は？",
+  "一番かばんの中が散らかってそうな人は？",
+  "一番ギャンブルにハマりそうな人は？",
+  "一番無人島に持っていきたい人は？",
+  "一番宝くじが当たりそうな人は？",
+  "一番二日酔いになりそうな人は？",
+  "一番一発ギャグが上手そうな人は？",
+  "一番マイペースな人は？",
+  "一番デート代を出してくれそうな人は？",
+  "一番おごってくれそうな人は？",
+  "一番ドジっ子な人は？",
+  "一番怖い話が好きそうな人は？",
+  "一番おしゃれな人は？"
+];
+
+// ===== ゲーム状態 =====
+let players = [];
+let questionCount = 5;
+let selectedQuestions = [];      // 今ゲームで使うお題リスト
+let voterOrder = [];              // 投票する順番
+let currentVoterIndex = 0;        // 現在投票してる人 (voterOrder内のindex)
+let currentQuestionIndex = 0;     // 現在のお題 (selectedQuestions内のindex)
+let voteData = [];                // [{ questionIdx: { voteeName: count } }] お題ごとの票数
+let crushVotes = {};              // { voterName: voteeName | null }
+let resultIndex = 0;              // 結果表示のindex
+
+// ===== 画面切り替え =====
+function showScreen(id) {
+  document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+// ===== プレイヤー管理 =====
+function addPlayer() {
+  const input = document.getElementById('playerNameInput');
+  const name = input.value.trim();
+  if (!name) return;
+  if (players.length >= 10) { alert('最大10人までだよ！'); return; }
+  if (players.includes(name)) { alert('同じ名前の人がいるよ！'); return; }
+  players.push(name);
+  input.value = '';
+  renderPlayers();
+  input.focus();
+}
+
+function removePlayer(index) {
+  players.splice(index, 1);
+  renderPlayers();
+}
+
+function renderPlayers() {
+  const list = document.getElementById('playerList');
+  list.innerHTML = '';
+  players.forEach((p, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span>👤 ${escapeHtml(p)}</span><button class="remove-btn" onclick="removePlayer(${i})">×</button>`;
+    list.appendChild(li);
+  });
+  document.getElementById('countInfo').textContent = `現在 ${players.length}人 / 3〜10人で遊べます`;
+  document.getElementById('startBtn').disabled = players.length < 3;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('playerNameInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') addPlayer();
+  });
+  // お題数セレクター
+  document.querySelectorAll('.count-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.count-option').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      questionCount = parseInt(btn.dataset.count, 10);
+    });
+  });
+});
+
+// ===== ゲーム開始 =====
+function startGame() {
+  if (players.length < 3) return;
+  // お題をランダム選択
+  selectedQuestions = [...QUESTIONS].sort(() => Math.random() - 0.5).slice(0, questionCount);
+  // 票データ初期化
+  voteData = selectedQuestions.map(() => {
+    const obj = {};
+    players.forEach(p => obj[p] = 0);
+    return obj;
+  });
+  crushVotes = {};
+  // 投票順をシャッフル
+  voterOrder = [...players].sort(() => Math.random() - 0.5);
+  currentVoterIndex = 0;
+  currentQuestionIndex = 0;
+  showPassScreen();
+}
+
+// ===== パス画面 =====
+function showPassScreen() {
+  if (currentVoterIndex >= voterOrder.length) {
+    // 全員投票完了 → 結果画面へ
+    resultIndex = 0;
+    showQuestionResult();
+    return;
+  }
+  const voter = voterOrder[currentVoterIndex];
+  document.getElementById('nextVoterName').textContent = voter;
+  document.getElementById('passProgress').textContent =
+    `${currentVoterIndex + 1} / ${voterOrder.length}人目`;
+  showScreen('screen-pass');
+}
+
+// ===== 投票画面 =====
+function showVoteScreen() {
+  currentQuestionIndex = 0;
+  renderVoteScreen();
+}
+
+function renderVoteScreen() {
+  const voter = voterOrder[currentVoterIndex];
+  const qIdx = currentQuestionIndex;
+  const totalQ = selectedQuestions.length;
+
+  document.getElementById('currentVoterName').textContent = voter;
+  document.getElementById('voterProgress').textContent =
+    `${currentVoterIndex + 1} / ${voterOrder.length}人目`;
+  document.getElementById('questionProgress').textContent =
+    `お題 ${qIdx + 1} / ${totalQ}`;
+  document.getElementById('progressBar').style.width =
+    ((qIdx + 1) / totalQ * 100) + '%';
+  document.getElementById('voteQuestionText').textContent = selectedQuestions[qIdx];
+
+  const buttons = document.getElementById('voteButtons');
+  buttons.innerHTML = '';
+  players.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'vote-btn';
+    if (p === voter) btn.classList.add('self');
+    btn.textContent = p === voter ? `${p} (自分)` : p;
+    btn.onclick = () => castVote(p);
+    buttons.appendChild(btn);
+  });
+
+  showScreen('screen-vote');
+}
+
+function castVote(voteeName) {
+  voteData[currentQuestionIndex][voteeName]++;
+  currentQuestionIndex++;
+  if (currentQuestionIndex < selectedQuestions.length) {
+    renderVoteScreen();
+  } else {
+    // 全お題完了 → 気になる人画面
+    showCrushScreen();
+  }
+}
+
+// ===== 気になる人投票 =====
+function showCrushScreen() {
+  const voter = voterOrder[currentVoterIndex];
+  document.getElementById('crushVoterName').textContent = voter;
+  document.getElementById('crushVoterProgress').textContent =
+    `${currentVoterIndex + 1} / ${voterOrder.length}人目`;
+
+  const buttons = document.getElementById('crushButtons');
+  buttons.innerHTML = '';
+  players.forEach(p => {
+    if (p === voter) return; // 自分は対象外
+    const btn = document.createElement('button');
+    btn.className = 'vote-btn crush';
+    btn.textContent = '💖 ' + p;
+    btn.onclick = () => castCrushVote(p);
+    buttons.appendChild(btn);
+  });
+  // スキップ
+  const skipBtn = document.createElement('button');
+  skipBtn.className = 'vote-btn skip';
+  skipBtn.textContent = '🤐 ヒミツ / なし';
+  skipBtn.onclick = () => castCrushVote(null);
+  buttons.appendChild(skipBtn);
+
+  showScreen('screen-crush');
+}
+
+function castCrushVote(voteeName) {
+  const voter = voterOrder[currentVoterIndex];
+  crushVotes[voter] = voteeName;
+  currentVoterIndex++;
+  showPassScreen();
+}
+
+// ===== 結果発表 (お題ごと) =====
+function showQuestionResult() {
+  const qIdx = resultIndex;
+  const totalQ = selectedQuestions.length;
+  const isLast = qIdx === totalQ - 1;
+
+  document.getElementById('resultHeader').textContent =
+    `📊 お題 ${qIdx + 1} の結果`;
+  document.getElementById('resultProgress').textContent =
+    `${qIdx + 1} / ${totalQ}`;
+  document.getElementById('resultQuestionText').textContent = selectedQuestions[qIdx];
+  document.getElementById('nextResultBtn').textContent =
+    isLast ? '💕 マッチング発表へ' : '次のお題へ ➡️';
+
+  const sorted = Object.entries(voteData[qIdx]).sort((a, b) => b[1] - a[1]);
+  const ranks = computeRanks(sorted);
+
+  const list = document.getElementById('resultList');
+  list.innerHTML = '';
+  sorted.forEach(([name, count], i) => {
+    const rank = ranks[i];
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    if (rank === 1) row.classList.add('first');
+    if (rank === 2) row.classList.add('second');
+
+    let medal = `${rank}位`;
+    if (rank === 1) medal = '👑';
+    else if (rank === 2) medal = '😈';
+    else if (rank === 3) medal = '🥉';
+
+    row.innerHTML = `
+      <div class="rank">${medal}</div>
+      <div class="result-name">${escapeHtml(name)}</div>
+      <div class="vote-count">${count}票</div>
+    `;
+    list.appendChild(row);
+  });
+
+  // 2位の人を罰ゲームに
+  const secondPlacePeople = sorted.filter((_, i) => ranks[i] === 2).map(([name]) => name);
+  const banner = document.getElementById('punishmentBanner');
+  const tieBox = document.getElementById('tieNoteBox');
+  tieBox.innerHTML = '';
+
+  if (secondPlacePeople.length === 0) {
+    banner.classList.add('hidden');
+    tieBox.innerHTML = '<div class="tie-note">⚠️ 2位がいませんでした！</div>';
+  } else {
+    banner.classList.remove('hidden');
+    if (secondPlacePeople.length > 1) {
+      tieBox.innerHTML = `<div class="tie-note">😱 同票で${secondPlacePeople.length}人とも罰ゲーム！</div>`;
+    }
+    document.getElementById('punishmentName').textContent = secondPlacePeople.join(' & ');
+    fireConfetti();
+  }
+
+  showScreen('screen-result');
+}
+
+function nextResult() {
+  resultIndex++;
+  if (resultIndex < selectedQuestions.length) {
+    showQuestionResult();
+  } else {
+    showMatchScreen();
+  }
+}
+
+function computeRanks(sortedArr) {
+  const ranks = [];
+  let currentRank = 1;
+  for (let i = 0; i < sortedArr.length; i++) {
+    if (i > 0 && sortedArr[i][1] !== sortedArr[i-1][1]) {
+      currentRank = i + 1;
+    }
+    ranks.push(currentRank);
+  }
+  return ranks;
+}
+
+// ===== マッチング結果 =====
+function showMatchScreen() {
+  const matchList = document.getElementById('matchList');
+  matchList.innerHTML = '';
+
+  // 相互マッチを検出
+  const matches = [];
+  const seen = new Set();
+  for (const [voter, votee] of Object.entries(crushVotes)) {
+    if (!votee) continue;
+    if (crushVotes[votee] === voter) {
+      const key = [voter, votee].sort().join('|');
+      if (!seen.has(key)) {
+        seen.add(key);
+        matches.push([voter, votee]);
+      }
+    }
+  }
+
+  if (matches.length === 0) {
+    matchList.innerHTML = `
+      <div class="no-match">
+        <div style="font-size:40px;margin-bottom:8px;">💔</div>
+        今回はマッチなし...<br>
+        <span style="font-size:13px;font-weight:normal;color:#9ca3af;">またのご縁を🍻</span>
+      </div>
+    `;
+  } else {
+    matches.forEach(([a, b]) => {
+      const div = document.createElement('div');
+      div.className = 'match-banner';
+      div.innerHTML = `
+        <div style="font-size:13px;letter-spacing:3px;margin-bottom:6px;">★ MATCH! ★</div>
+        <div class="match-pair">${escapeHtml(a)} <span class="heart-icon">💞</span> ${escapeHtml(b)}</div>
+        <div class="match-action">🥂 腕組んで乾杯！</div>
+      `;
+      matchList.appendChild(div);
+    });
+    fireHearts();
+    fireConfetti();
+  }
+
+  // 片思い情報も少し表示（誰が誰に投票したかは伏せる）
+  const totalVotes = Object.values(crushVotes).filter(v => v).length;
+  const summary = document.createElement('div');
+  summary.style.cssText = 'text-align:center;color:#888;font-size:12px;margin-top:12px;';
+  summary.innerHTML = `投票した人: ${totalVotes}人 / マッチ: ${matches.length}組`;
+  matchList.appendChild(summary);
+
+  showScreen('screen-match');
+}
+
+// ===== リセット =====
+function resetGameKeepPlayers() {
+  if (!confirm('もう一度プレイします（メンバーは保持）')) return;
+  startGame();
+}
+
+function resetAll() {
+  if (!confirm('最初の画面に戻ります（メンバーもリセット）')) return;
+  players = [];
+  voteData = [];
+  crushVotes = {};
+  selectedQuestions = [];
+  renderPlayers();
+  showScreen('screen-setup');
+}
+
+// ===== ヘルパー =====
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function fireConfetti() {
+  const colors = ['#ff6b9d', '#c084fc', '#60a5fa', '#fbbf24', '#34d399', '#f97316'];
+  for (let i = 0; i < 40; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.top = '-10px';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDelay = Math.random() * 1.5 + 's';
+    el.style.animationDuration = (2 + Math.random() * 2) + 's';
+    if (Math.random() > 0.5) el.style.borderRadius = '50%';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+}
+
+function fireHearts() {
+  const hearts = ['💖', '💕', '💗', '💝', '💞', '💘'];
+  for (let i = 0; i < 25; i++) {
+    const el = document.createElement('div');
+    el.className = 'floating-heart';
+    el.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.bottom = '0';
+    el.style.animationDelay = Math.random() * 2 + 's';
+    el.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }
+}
+</script>
+</body>
+</html>
