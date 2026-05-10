@@ -431,21 +431,18 @@
 
   /* ===== マネタイズ枠 ===== */
   .ad-slot {
-    margin: 16px 0;
-    padding: 8px;
-    background: #f9fafb;
-    border-radius: 12px;
     text-align: center;
-    min-height: 60px;
-    font-size: 11px;
-    color: #9ca3af;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
   }
-  .ad-slot:empty::before {
-    content: "広告枠";
-    opacity: 0.5;
+  .ad-slot:not(:has(iframe, img, ins)) {
+    display: none;
+  }
+  /* iframe/img/ins が読み込まれた時だけマージンと行間を復活 */
+  .ad-slot:has(iframe, img, ins) {
+    margin: 16px 0;
+    line-height: normal;
   }
 
   .affiliate-section {
@@ -729,11 +726,6 @@
     </div>
 
     <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>ゲームスタート 🎮</button>
-
-    <p style="text-align:center;margin-top:12px;font-size:12px;">
-      <a href="guide.html" style="color:#888;margin:0 8px;">📖 遊び方</a>
-      <a href="articles.html" style="color:#888;margin:0 8px;">📚 記事一覧</a>
-    </p>
   </div>
 
   <!-- パス画面 -->
@@ -836,13 +828,6 @@
       </div>
     </div>
 
-    <!-- 🟡 広告枠 (忍者AdMax) -->
-    <div class="ad-slot" id="ad-slot-match">
-      <!-- admax -->
-      <script src="https://adm.shinobi.jp/s/7c38d238eda816ec7bede0ddc427040f"></script>
-      <!-- admax -->
-    </div>
-
     <div class="button-row">
       <button class="btn btn-secondary" onclick="resetGameKeepPlayers()">もう一回 🔁</button>
       <button class="btn btn-warning" onclick="resetAll()">最初から</button>
@@ -850,8 +835,8 @@
 
     <!-- 🔴 投げ銭ボタン (Buy Me a Coffeeなど) -->
     <div class="support-section">
-      <a class="support-btn" href="https://www.buymeacoffee.com/okaupa" target="_blank" rel="noopener">
-        🍺 楽しかったらサポート
+      <a class="support-btn" href="https://www.buymeacoffee.com/YOUR_USERNAME" target="_blank" rel="noopener">
+        ☕ 楽しかったらサポート
       </a>
     </div>
   </div>
@@ -862,6 +847,10 @@
     <a href="privacy.html">プライバシー</a>・
     <a href="terms.html">利用規約</a>・
     <a href="https://twitter.com/share?text=飲み会で使える第一印象ゲーム作ったよ&url=" target="_blank" rel="noopener">シェア</a>
+  </div>
+  <!-- もしもアフィリエイト バナー -->
+  <div style="text-align:center;margin-top:12px;">
+    <a href="//af.moshimo.com/af/c/click?a_id=5545151&p_id=54&pc_id=54&pl_id=616" rel="nofollow" referrerpolicy="no-referrer-when-downgrade" attributionsrc><img src="//image.moshimo.com/af-img/0032/000000000616.gif" width="88" height="31" style="border:none;"></a><img src="//i.moshimo.com/af/i/impression?a_id=5545151&p_id=54&pc_id=54&pl_id=616" width="1" height="1" style="border:none;" loading="lazy">
   </div>
 </div>
 
@@ -1058,6 +1047,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   // 年齢確認チェック
   checkAgeConfirmation();
+});
+
+// ===== 広告枠が空ならhideする (古いブラウザ向けフォールバック) =====
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.querySelectorAll('.ad-slot').forEach(slot => {
+      const hasAd = slot.querySelector('iframe, img, ins, [class*="admax"], [id*="admax"]');
+      if (!hasAd) {
+        slot.style.display = 'none';
+      }
+    });
+  }, 2500);
 });
 
 // ===== 年齢確認 =====
