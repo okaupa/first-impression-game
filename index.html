@@ -725,6 +725,17 @@
       </label>
     </div>
 
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">💕 マッチング機能を使う</div>
+        <div class="toggle-desc">気になる人を選んで、両思いならマッチング発表！</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="matchingToggle" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
     <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>ゲームスタート 🎮</button>
   </div>
 
@@ -1166,8 +1177,14 @@ function castVote(voteeName) {
   if (currentQuestionIndex < selectedQuestions.length) {
     renderVoteScreen();
   } else {
-    // 全お題完了 → 気になる人画面
-    showCrushScreen();
+    // 全お題完了 → マッチング機能オンなら気になる人画面、オフなら次のパス画面へ
+    const matchingEnabled = document.getElementById('matchingToggle').checked;
+    if (matchingEnabled) {
+      showCrushScreen();
+    } else {
+      currentVoterIndex++;
+      showPassScreen();
+    }
   }
 }
 
@@ -1216,8 +1233,14 @@ function showQuestionResult() {
   document.getElementById('resultProgress').textContent =
     `${qIdx + 1} / ${totalQ}`;
   document.getElementById('resultQuestionText').textContent = selectedQuestions[qIdx];
-  document.getElementById('nextResultBtn').textContent =
-    isLast ? '💕 マッチング発表へ' : '次のお題へ ➡️';
+
+  const matchingEnabled = document.getElementById('matchingToggle').checked;
+  if (isLast) {
+    document.getElementById('nextResultBtn').textContent =
+      matchingEnabled ? '💕 マッチング発表へ' : '🔁 ゲーム終了';
+  } else {
+    document.getElementById('nextResultBtn').textContent = '次のお題へ ➡️';
+  }
 
   const sorted = Object.entries(voteData[qIdx]).sort((a, b) => b[1] - a[1]);
   const ranks = computeRanks(sorted);
@@ -1270,8 +1293,28 @@ function nextResult() {
   if (resultIndex < selectedQuestions.length) {
     showQuestionResult();
   } else {
-    showMatchScreen();
+    const matchingEnabled = document.getElementById('matchingToggle').checked;
+    if (matchingEnabled) {
+      showMatchScreen();
+    } else {
+      showEndScreen();
+    }
   }
+}
+
+// ===== 終了画面（マッチングOFF時）=====
+function showEndScreen() {
+  const endDiv = document.getElementById('screen-match');
+  endDiv.querySelector('h1').textContent = '🎉 ゲーム終了！';
+  endDiv.querySelector('.subtitle').textContent = 'お疲れさまでした🥂';
+  document.getElementById('matchList').innerHTML = `
+    <div class="no-match" style="background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;">
+      <div style="font-size:40px;margin-bottom:8px;">🍻</div>
+      楽しかったね！<br>
+      <span style="font-size:13px;font-weight:normal;color:#a16207;">またみんなで遊ぼう</span>
+    </div>
+  `;
+  showScreen('screen-match');
 }
 
 function computeRanks(sortedArr) {
@@ -1288,6 +1331,10 @@ function computeRanks(sortedArr) {
 
 // ===== マッチング結果 =====
 function showMatchScreen() {
+  // タイトルをリセット（終了画面から戻ってきた場合のため）
+  document.querySelector('#screen-match h1').textContent = '💕 マッチング発表 💕';
+  document.querySelector('#screen-match .subtitle').textContent = '気になる人がお互いマッチしたら…';
+
   const matchList = document.getElementById('matchList');
   matchList.innerHTML = '';
 
